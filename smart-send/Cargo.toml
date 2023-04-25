@@ -1,0 +1,18 @@
+[package]
+name = "smart-send"
+version = "1.0.0"
+authors = [ "you",]
+edition = "2021"
+publish = false
+
+[lib]
+path = "src/smart_send.rs"
+
+[dev-dependencies]
+num-bigint = "0.4.2"
+
+[dependencies.multiversx-sc]
+version = "0.39.4"
+
+[dev-dependencies.multiversx-sc-scenario]
+version = "0.39.4"

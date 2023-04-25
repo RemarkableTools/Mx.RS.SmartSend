@@ -1,0 +1,14 @@
+[package]
+name = "remarkable-tools-meta"
+version = "1.0.0"
+edition = "2021"
+publish = false
+authors = [ "you",]
+
+[dev-dependencies]
+
+[dependencies.remarkable-tools]
+path = ".."
+
+[dependencies.multiversx-sc-meta]
+version = "0.39.4"
