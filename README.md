@@ -1,4 +1,5 @@
-## [Remarkable Tools](https://remarkable.tools) - Smart Send contracts
+## [Remarkable Tools](https://devnet.remarkable.tools) (DevNet) - Smart Send contracts
+_*only on devnet at the moment_
 ### `Smart Send Contract` is an open-source contract that allows one to transfer ESDT Tokens to multiple addresses. One will be able to transfer EGLD, Tokens, MetaESDTs, NFTs or SFTs through the contract.
 <br>
 
