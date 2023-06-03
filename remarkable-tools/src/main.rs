@@ -5,6 +5,7 @@ multiversx_sc::derive_imports!();
 
 mod smart_send;
 pub mod storage;
+use core::ops::Deref;
 
 #[multiversx_sc::contract]
 pub trait RemarkableToolsSmartSend:
@@ -17,9 +18,10 @@ pub trait RemarkableToolsSmartSend:
     #[payable("*")]
     #[endpoint(generate)]
     fn generate(&self) -> ManagedAddress {
-        let payment_amount = self.call_value().egld_value();
+        let egld_value = self.call_value().egld_value();
+        let payment_amount = egld_value.deref();
         require!(
-            payment_amount == self.contract_price().get(),
+            payment_amount == &self.contract_price().get(),
             "Invalid EGLD payment amount"
         );
 
