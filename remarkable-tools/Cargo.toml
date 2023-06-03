@@ -1,19 +1,19 @@
 [package]
 name = "remarkable-tools"
 version = "1.0.0"
-authors = ["Remarakble Tools"]
+authors = ["Remarkable Tools"]
 edition = "2021"
 publish = false
 
 [lib]
 path = "src/main.rs"
 
+[dependencies.multiversx-sc]
+version = "0.41.1"
+
+[dev-dependencies.multiversx-sc-scenario]
+version = "0.41.1"
+
 [dev-dependencies]
 num-bigint = "0.4.2"
 hex-literal = "0.3.1"
-
-[dependencies.multiversx-sc]
-version = "0.39.4"
-
-[dev-dependencies.multiversx-sc-scenario]
-version = "0.39.4"
