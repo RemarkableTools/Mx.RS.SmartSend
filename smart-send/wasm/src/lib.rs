@@ -18,13 +18,14 @@ multiversx_sc_wasm_adapter::panic_handler!();
 multiversx_sc_wasm_adapter::endpoints! {
     smart_send
     (
-        addUser
-        removeUser
-        smartSend
-        smartNftSend
-        smartSftSend
-        getAllowedUsers
+        init => init
+        addUser => add_user
+        removeUser => remove_user
+        smartSend => token_distribution
+        smartNftSend => nft_distribution
+        smartSftSend => sft_distribution
+        getAllowedUsers => allowed_users
     )
 }
 
-multiversx_sc_wasm_adapter::empty_callback! {}
+multiversx_sc_wasm_adapter::async_callback_empty! {}

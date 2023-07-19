@@ -18,17 +18,18 @@ multiversx_sc_wasm_adapter::panic_handler!();
 multiversx_sc_wasm_adapter::endpoints! {
     remarkable_tools
     (
-        generate
-        claimOwnership
-        setSourceContract
-        setContractPrice
-        smartSend
-        smartNftSend
-        smartSftSend
-        getSourceContract
-        getGenerationPrice
-        getUnclaimedContracts
+        init => init
+        generate => generate
+        claimOwnership => claim_ownership
+        setSourceContract => set_source_contract
+        setContractPrice => set_contract_price
+        smartSend => token_distribution
+        smartNftSend => nft_distribution
+        smartSftSend => sft_distribution
+        getSourceContract => source_contract
+        getGenerationPrice => contract_price
+        getUnclaimedContracts => unclaimed_contracts
     )
 }
 
-multiversx_sc_wasm_adapter::empty_callback! {}
+multiversx_sc_wasm_adapter::async_callback_empty! {}
