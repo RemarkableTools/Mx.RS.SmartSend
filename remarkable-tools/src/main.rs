@@ -26,7 +26,7 @@ pub trait RemarkableToolsSmartSend:
         );
 
         let args: ManagedArgBuffer<Self::Api> = ManagedArgBuffer::new();
-        let (contract_address, _) = Self::Api::send_api_impl().deploy_from_source_contract(
+        let (contract_address, _) = self.send_raw().deploy_from_source_contract(
             self.blockchain().get_gas_left()/2,
             &BigUint::zero(),
             &self.source_contract().get(),
