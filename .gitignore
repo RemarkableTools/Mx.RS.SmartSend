@@ -11,10 +11,13 @@
 # The mxpy output
 **/output**
 **/output-docker**
-**/*.interaction.json
 
 # The contract interactions
 **/interaction**
+**/*.interaction.json
+
+# snippets
+**/*.sh
 
 # other
 desktop.ini
