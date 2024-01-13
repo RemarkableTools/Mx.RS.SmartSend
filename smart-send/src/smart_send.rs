@@ -7,6 +7,9 @@ pub trait SmartSendContract {
     #[init]
     fn init(&self) {}
 
+    #[upgrade]
+    fn upgrade(&self) {}
+
     #[only_owner]
     #[endpoint(addUser)]
     fn add_user(&self, user: ManagedAddress) {

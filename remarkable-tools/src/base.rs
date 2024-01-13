@@ -15,6 +15,9 @@ pub trait RemarkableToolsSmartSend:
     #[init]
     fn init(&self) {}
 
+    #[upgrade]
+    fn upgrade(&self) {}
+
     #[payable("*")]
     #[endpoint(generate)]
     fn generate(&self) -> ManagedAddress {
