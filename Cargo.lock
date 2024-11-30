@@ -750,10 +750,8 @@ name = "remarkable-tools"
 version = "1.0.0"
 dependencies = [
  "distribution",
- "hex-literal",
  "multiversx-sc",
  "multiversx-sc-scenario",
- "num-bigint",
  "proxies",
 ]
 

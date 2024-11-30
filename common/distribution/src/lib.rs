@@ -75,5 +75,4 @@ pub trait DistributionModule {
                 .transfer();
         }
     }
-
 }
