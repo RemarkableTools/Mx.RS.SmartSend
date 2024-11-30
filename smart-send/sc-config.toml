@@ -1,0 +1,4 @@
+[settings]
+
+[[proxy]]
+path = "../common/proxies/src/smart_send_proxy.rs"

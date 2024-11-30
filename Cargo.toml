@@ -1,0 +1,9 @@
+[workspace]
+resolver = "2"
+
+members = [
+   "remarkable-tools",
+   "remarkable-tools/meta",
+   "smart-send",
+   "smart-send/meta",
+]
