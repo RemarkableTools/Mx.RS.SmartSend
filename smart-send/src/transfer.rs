@@ -8,7 +8,7 @@ pub trait TransferModule:
 {
     #[payable("*")]
     #[endpoint(smartSend)]
-    fn token_distribution(
+    fn smart_send(
         &self,
         params: MultiValueEncoded<MultiValue2<ManagedAddress, BigUint>>,
     ) {
@@ -20,7 +20,7 @@ pub trait TransferModule:
 
     #[payable("*")]
     #[endpoint(smartNftSend)]
-    fn nft_distribution(
+    fn smart_nft_send(
         &self,
         params: MultiValueEncoded<MultiValue3<ManagedAddress, TokenIdentifier, u64>>,
     ) {
@@ -28,17 +28,5 @@ pub trait TransferModule:
         self.require_user_is_allowed(caller);
 
         self.distribute_nfts(params);
-    }
-
-    #[payable("*")]
-    #[endpoint(smartSftSend)]
-    fn sft_distribution(
-        &self,
-        params: MultiValueEncoded<MultiValue2<ManagedAddress, BigUint>>,
-    ) {
-        let caller = self.blockchain().get_caller();
-        self.require_user_is_allowed(caller.clone());
-
-        self.distribute_sft(caller, params);
     }
 }

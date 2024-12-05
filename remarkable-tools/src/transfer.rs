@@ -4,7 +4,7 @@ use multiversx_sc::imports::*;
 pub trait TransferModule: distribution::DistributionModule {
     #[payable("*")]
     #[endpoint(smartSend)]
-    fn token_distribution(
+    fn smart_send(
         &self,
         params: MultiValueEncoded<MultiValue2<ManagedAddress, BigUint>>,
     ) {
@@ -13,19 +13,10 @@ pub trait TransferModule: distribution::DistributionModule {
 
     #[payable("*")]
     #[endpoint(smartNftSend)]
-    fn nft_distribution(
+    fn smart_nft_send(
         &self,
         params: MultiValueEncoded<MultiValue3<ManagedAddress, TokenIdentifier, u64>>,
     ) {
         self.distribute_nfts(params);
-    }
-
-    #[payable("*")]
-    #[endpoint(smartSftSend)]
-    fn sft_distribution(
-        &self,
-        params: MultiValueEncoded<MultiValue2<ManagedAddress, BigUint>>,
-    ) {
-        self.distribute_sft(self.blockchain().get_caller(), params);
     }
 }

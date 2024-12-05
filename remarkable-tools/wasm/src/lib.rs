@@ -6,9 +6,9 @@
 
 // Init:                                 1
 // Upgrade:                              1
-// Endpoints:                           10
+// Endpoints:                            9
 // Async Callback (empty):               1
-// Total number of exported functions:  13
+// Total number of exported functions:  12
 
 #![no_std]
 
@@ -27,9 +27,8 @@ multiversx_sc_wasm_adapter::endpoints! {
         getSourceContract => source_contract
         getGenerationPrice => contract_price
         getUnclaimedContracts => unclaimed_contracts
-        smartSend => token_distribution
-        smartNftSend => nft_distribution
-        smartSftSend => sft_distribution
+        smartSend => smart_send
+        smartNftSend => smart_nft_send
     )
 }
 
