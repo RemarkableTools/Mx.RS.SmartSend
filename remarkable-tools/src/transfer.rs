@@ -1,14 +1,16 @@
 use multiversx_sc::imports::*;
 
 #[multiversx_sc::module]
-pub trait TransferModule: distribution::DistributionModule {
+pub trait TransferModule:
+    distribution::DistributionModule
+{
     #[payable("*")]
     #[endpoint(smartSend)]
     fn smart_send(
         &self,
         params: MultiValueEncoded<MultiValue2<ManagedAddress, BigUint>>,
     ) {
-        self.distribute_egld_or_esdt(self.blockchain().get_caller(), params);
+        self.distribute_egld_or_esdt(params);
     }
 
     #[payable("*")]

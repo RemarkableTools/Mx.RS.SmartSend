@@ -6,28 +6,43 @@ use multiversx_sc::imports::*;
 pub trait DistributionModule {
     fn distribute_egld_or_esdt(
         &self,
-        caller: ManagedAddress,
         transfers: MultiValueEncoded<MultiValue2<ManagedAddress, BigUint>>,
     ) {
         let payment = self.call_value().egld_or_single_esdt();
-        let mut sent_amount = BigUint::zero();
+        self.verify_payment(payment.clone(), transfers.clone());
+
         for transfer in transfers.into_iter() {
             let (receiver, amount) = transfer.into_tuple();
-            sent_amount += &amount;
-
             self.tx()
                 .to(receiver)
                 .payment(EgldOrEsdtTokenPayment::new(payment.token_identifier.clone(), payment.token_nonce, amount))
                 .transfer();
         }
+    }
 
-        if payment.amount > sent_amount {
-            let remaining_amount = payment.amount - sent_amount;
-            self.tx()
-                .to(caller)
-                .payment(EgldOrEsdtTokenPayment::new(payment.token_identifier, payment.token_nonce, remaining_amount))
-                .transfer();
+    fn verify_payment(
+        &self,
+        payment: EgldOrEsdtTokenPayment,
+        transfers: MultiValueEncoded<MultiValue2<ManagedAddress, BigUint>>,
+    ) {
+        let mut total_amount = BigUint::zero();
+        for transfer in transfers.into_iter() {
+            let (_, amount) = transfer.into_tuple();
+            total_amount += &amount;
         }
+
+        if total_amount == payment.amount {
+            return;
+        }
+        if total_amount > payment.amount {
+            sc_panic!("Payment received cannot satisfy all the transfers");
+        }
+
+        let remaining_amount = payment.amount - total_amount;
+        self.tx()
+            .to(self.blockchain().get_caller())
+            .payment(EgldOrEsdtTokenPayment::new(payment.token_identifier, payment.token_nonce, remaining_amount))
+            .transfer();
     }
 
     fn distribute_nfts(

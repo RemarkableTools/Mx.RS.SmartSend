@@ -3,8 +3,8 @@ use crate::users;
 
 #[multiversx_sc::module]
 pub trait TransferModule:
-    users::UsersModule +
     distribution::DistributionModule
+    + users::UsersModule
 {
     #[payable("*")]
     #[endpoint(smartSend)]
@@ -12,10 +12,9 @@ pub trait TransferModule:
         &self,
         params: MultiValueEncoded<MultiValue2<ManagedAddress, BigUint>>,
     ) {
-        let caller = self.blockchain().get_caller();
-        self.require_user_is_allowed(caller.clone());
+        self.require_user_is_allowed(self.blockchain().get_caller());
 
-        self.distribute_egld_or_esdt(caller, params);
+        self.distribute_egld_or_esdt(params);
     }
 
     #[payable("*")]
@@ -24,8 +23,7 @@ pub trait TransferModule:
         &self,
         params: MultiValueEncoded<MultiValue3<ManagedAddress, TokenIdentifier, u64>>,
     ) {
-        let caller = self.blockchain().get_caller();
-        self.require_user_is_allowed(caller);
+        self.require_user_is_allowed(self.blockchain().get_caller());
 
         self.distribute_nfts(params);
     }
