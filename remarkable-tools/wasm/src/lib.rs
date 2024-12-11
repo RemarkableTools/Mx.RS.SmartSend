@@ -5,13 +5,12 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                           11
+// Upgrade:                              1
+// Endpoints:                            9
 // Async Callback (empty):               1
-// Total number of exported functions:  13
+// Total number of exported functions:  12
 
 #![no_std]
-#![allow(internal_features)]
-#![feature(lang_items)]
 
 multiversx_sc_wasm_adapter::allocator!();
 multiversx_sc_wasm_adapter::panic_handler!();
@@ -25,12 +24,11 @@ multiversx_sc_wasm_adapter::endpoints! {
         claimOwnership => claim_ownership
         setSourceContract => set_source_contract
         setContractPrice => set_contract_price
-        smartSend => token_distribution
-        smartNftSend => nft_distribution
-        smartSftSend => sft_distribution
         getSourceContract => source_contract
         getGenerationPrice => contract_price
         getUnclaimedContracts => unclaimed_contracts
+        smartSend => smart_send
+        smartNftSend => smart_nft_send
     )
 }
 

@@ -1,0 +1,8 @@
+[package]
+name = "distribution"
+version = "1.0.0"
+authors = ["Remarkable Tools"]
+edition = "2021"
+
+[dependencies.multiversx-sc]
+version = "0.54.5"

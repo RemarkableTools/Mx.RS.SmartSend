@@ -6,14 +6,16 @@ edition = "2021"
 publish = false
 
 [lib]
-path = "src/base.rs"
+path = "src/lib.rs"
 
 [dependencies.multiversx-sc]
-version = "0.46.1"
+version = "0.54.5"
 
-[dev-dependencies]
-num-bigint = "0.4.2"
-hex-literal = "0.3.1"
+[dependencies.distribution]
+path = "../common/distribution"
+
+[dependencies.proxies]
+path = "../common/proxies"
 
 [dev-dependencies.multiversx-sc-scenario]
-version = "0.46.1"
+version = "0.54.5"
