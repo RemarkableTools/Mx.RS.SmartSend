@@ -6,4 +6,6 @@ members = [
    "remarkable-tools/meta",
    "smart-send",
    "smart-send/meta",
+   "smart-send-v2",
+   "smart-send-v2/meta",
 ]
