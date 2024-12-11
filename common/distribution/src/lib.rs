@@ -29,13 +29,13 @@ pub trait DistributionModule {
         for transfer in transfers.into_iter() {
             let (_, amount) = transfer.into_tuple();
             total_amount += &amount;
+            if total_amount > payment.amount {
+                sc_panic!("Payment received cannot satisfy all the transfers");
+            }
         }
 
         if total_amount == payment.amount {
             return;
-        }
-        if total_amount > payment.amount {
-            sc_panic!("Payment received cannot satisfy all the transfers");
         }
 
         let remaining_amount = payment.amount - total_amount;
