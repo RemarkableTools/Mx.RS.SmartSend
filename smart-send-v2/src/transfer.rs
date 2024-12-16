@@ -1,33 +1,14 @@
 use multiversx_sc::imports::*;
-use multiversx_sc::{
-    api::ManagedTypeApi,
-    codec,
-    derive::{type_abi},
-    proxy_imports::{NestedDecode, NestedEncode, TopDecode, TopEncode},
-    types::{ManagedAddress},
-};
-use crate::users;
 
-#[type_abi]
-#[derive(NestedEncode, NestedDecode, TopEncode, TopDecode, Clone, PartialEq, Eq, Debug)]
-pub struct Transfer<M: ManagedTypeApi> {
-    pub receiver: ManagedAddress<M>,
-    pub payment_token: EsdtTokenPayment<M>,
-}
-
-impl<M: ManagedTypeApi> Transfer<M> {
-    pub fn new(receiver: ManagedAddress<M>, payment_token: EsdtTokenPayment<M>) -> Self {
-        Transfer {
-            receiver,
-            payment_token,
-        }
-    }
-}
+use crate::{data, users};
+use crate::storage;
+use data::Transfer;
 
 #[multiversx_sc::module]
 pub trait TransferModule:
-distribution::DistributionModule
-+ users::UsersModule
+    distribution::DistributionModule
+    + users::UsersModule
+    + storage::StorageModule
 {
     #[payable("*")]
     #[endpoint(smartSend)]
@@ -62,15 +43,22 @@ distribution::DistributionModule
         self.require_user_is_allowed(caller.clone());
 
         require!(
-            transfers.len() < 1400,
-            "The number of transfers should be lower than 1400"
+            transfers.len() < 1500,
+            "The number of transfers should be lower than 1500"
         );
 
         let payments = self.call_value().all_esdt_transfers();
-        // require payments.len == 2
+        require!(
+            payments.len() == 2,
+            "Invalid number of payments received"
+        );
 
+        let wegld = self.wegld_identifier().get();
         let payment_egld = payments.get(0).as_refs().to_owned_payment();
-        // require first payment is EGLD
+        require!(
+            payment_egld.token_identifier == wegld,
+            "First payments should be {}", wegld
+        );
 
         let payment_esdt = payments.get(1).as_refs().to_owned_payment();
         let transfers_list = self.store_transfers(caller.clone(), payment_esdt.clone(), transfers);
@@ -80,9 +68,17 @@ distribution::DistributionModule
             .payment(payment_egld)
             .transfer();
 
-        let mut rand_source = RandomnessSource::new();
-        let transfer_id = rand_source.next_u64();
-        self.initiator_transfers(&caller).insert(transfer_id);
+        let transfer_id: u64;
+        if self.initiator_transfers(&caller).contains(&executor_address) {
+            transfer_id = self.executor_transfers(&executor_address).get();
+        } else {
+            let mut rand_source = RandomnessSource::new();
+            transfer_id = rand_source.next_u64();
+
+            self.initiator_transfers(&caller).insert(executor_address.clone());
+            self.executor_transfers(&executor_address).set(transfer_id);
+        }
+
         self.tokens_transfers(transfer_id).extend(transfers_list.into_iter());
     }
 
@@ -120,9 +116,18 @@ distribution::DistributionModule
     #[endpoint(smartExecute)]
     fn smart_execute(
         &self,
-        transfers_id: u64,
+        opt_transfers_id: OptionalValue<u64>,
     ) {
+        let transfers_id = match opt_transfers_id {
+            OptionalValue::Some(id) => id,
+            OptionalValue::None => self.executor_transfers(&self.blockchain().get_caller()).get(),
+        };
+
         let transfers = self.tokens_transfers(transfers_id);
+        if transfers.is_empty() {
+            sc_panic!("No transfers found for id {}", transfers_id);
+        }
+
         for transfer in transfers.iter().take(100) {
             self.tx()
                 .to(&transfer.receiver)
@@ -133,9 +138,30 @@ distribution::DistributionModule
         }
     }
 
+    #[endpoint(finishExecution)]
+    fn smart_finish(
+        &self,
+        initiator_address: ManagedAddress,
+        executor_address: ManagedAddress,
+    ) {
+        let transfers_id = self.executor_transfers(&executor_address).get();
+        let transfers_count = self.tokens_transfers(transfers_id).len();
+        require!(
+             transfers_count == 0,
+            "Cannot finish execution, there are {} transfers left to be executed", transfers_count
+        );
+
+        self.executor_transfers(&executor_address).clear();
+        self.initiator_transfers(&initiator_address).swap_remove(&executor_address);
+    }
+
     #[view(getInitiatorTransfers)]
     #[storage_mapper("initiatorTransfers")]
-    fn initiator_transfers(&self, initiator_address: &ManagedAddress) -> UnorderedSetMapper<u64>;
+    fn initiator_transfers(&self, initiator_address: &ManagedAddress) -> UnorderedSetMapper<ManagedAddress>;
+
+    #[view(getExecutorTransfers)]
+    #[storage_mapper("executorTransfers")]
+    fn executor_transfers(&self, executor_address: &ManagedAddress) -> SingleValueMapper<u64>;
 
     #[view(getTokensTransfers)]
     #[storage_mapper("tokensTransfers")]
