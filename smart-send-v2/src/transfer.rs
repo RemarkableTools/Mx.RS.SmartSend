@@ -42,10 +42,10 @@ pub trait TransferModule:
         let caller = self.blockchain().get_caller();
         self.require_user_is_allowed(caller.clone());
 
-        require!(
-            transfers.len() < 1500,
-            "The number of transfers should be lower than 1500"
-        );
+        // require!(
+        //     transfers.len() < 1500,
+        //     "The number of transfers should be lower than 1500"
+        // );
 
         let payments = self.call_value().all_esdt_transfers();
         require!(
@@ -54,9 +54,9 @@ pub trait TransferModule:
         );
 
         let wegld = self.wegld_identifier().get();
-        let payment_egld = payments.get(0).as_refs().to_owned_payment();
+        let payment_wegld = payments.get(0).as_refs().to_owned_payment();
         require!(
-            payment_egld.token_identifier == wegld,
+            payment_wegld.token_identifier == wegld,
             "First payments should be {}", wegld
         );
 
@@ -64,22 +64,30 @@ pub trait TransferModule:
         let transfers_list = self.store_transfers(caller.clone(), payment_esdt.clone(), transfers);
 
         self.tx()
+            .to(self.wegld_contract().get())
+            .esdt(payment_wegld.clone())
+            .raw_call(ManagedBuffer::from("unwrapEgld"))
+            .sync_call();
+
+        self.tx()
             .to(executor_address.clone())
-            .payment(payment_egld)
+            .egld(&payment_wegld.amount)
             .transfer();
 
-        let transfer_id: u64;
+        let transfers_id: u64;
         if self.initiator_transfers(&caller).contains(&executor_address) {
-            transfer_id = self.executor_transfers(&executor_address).get();
+            transfers_id = self.executor_transfers(&executor_address).get();
         } else {
             let mut rand_source = RandomnessSource::new();
-            transfer_id = rand_source.next_u64();
+            transfers_id = rand_source.next_u64();
 
             self.initiator_transfers(&caller).insert(executor_address.clone());
-            self.executor_transfers(&executor_address).set(transfer_id);
+            self.executor_transfers(&executor_address).set(transfers_id);
         }
 
-        self.tokens_transfers(transfer_id).extend(transfers_list.into_iter());
+        for transfer in transfers_list {
+            self.tokens_transfers(transfers_id).push(&transfer);
+        }
     }
 
     fn store_transfers(
@@ -128,13 +136,19 @@ pub trait TransferModule:
             sc_panic!("No transfers found for id {}", transfers_id);
         }
 
-        for transfer in transfers.iter().take(100) {
+        let mut take_size = 100;
+        if transfers.len() < take_size {
+            take_size = transfers.len();
+        }
+
+        for _i in 1..take_size + 1 {
+            let transfer = transfers.get(1);
             self.tx()
                 .to(&transfer.receiver)
                 .payment(&transfer.payment_token)
                 .transfer();
 
-            self.tokens_transfers(transfers_id).swap_remove(&transfer);
+            self.tokens_transfers(transfers_id).swap_remove(1);
         }
     }
 
@@ -165,5 +179,5 @@ pub trait TransferModule:
 
     #[view(getTokensTransfers)]
     #[storage_mapper("tokensTransfers")]
-    fn tokens_transfers(&self, transfers_id: u64) -> UnorderedSetMapper<Transfer<Self::Api>>;
+    fn tokens_transfers(&self, transfers_id: u64) -> VecMapper<Transfer<Self::Api>>;
 }

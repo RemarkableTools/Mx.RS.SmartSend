@@ -18,8 +18,10 @@ pub trait SmartSendV2:
     fn init(
         &self,
         wegld_identifier: TokenIdentifier,
+        wegld_contract: ManagedAddress,
     ) {
         self.wegld_identifier().set(wegld_identifier);
+        self.wegld_contract().set(wegld_contract);
     }
 
     #[upgrade]
